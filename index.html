@@ -1,50 +1,59 @@
-
 <!DOCTYPE html>
-<html lang="it">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fantavolley</title>
+    <title>Fantavolley Manager</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="container">
-        <h1>Fantavolley</h1>
+    <h1>Fantavolley Manager</h1>
 
-        <form id="teamForm">
-            <input type="text" id="teamName" placeholder="Nome Squadra" required>
-            <input type="number" id="teamPoints" placeholder="Punti" required>
-            <input type="number" id="teamPenalties" placeholder="Penalità" required>
-            <input type="number" id="teamPlayers" placeholder="Giocatori" required>
-            <button type="submit">Aggiungi Squadra</button>
-        </form>
-
-        <h2>Squadre</h2>
-        <table id="teamTable">
-            <thead>
-                <tr>
-                    <th>Nome Squadra</th>
-                    <th>Punti</th>
-                    <th>Penalità</th>
-                    <th>Giocatori</th>
-                </tr>
-            </thead>
-            <tbody id="teamList"></tbody>
-        </table>
-
-        <h2>Punti Totali</h2>
-        <table id="scoreTable">
-            <thead>
-                <tr>
-                    <th>Nome Squadra</th>
-                    <th>Punti Totali</th>
-                    <th>Penalità Totali</th>
-                    <th>Risultato Finale</th>
-                </tr>
-            </thead>
-            <tbody id="scoreList"></tbody>
-        </table>
+    <!-- Form per creare una nuova squadra -->
+    <div>
+        <h2>Nuova Squadra</h2>
+        <input id="teamName" type="text" placeholder="Nome squadra">
+        <button onclick="createTeam()">Crea Squadra</button>
     </div>
+
+    <!-- Tabella per visualizzare le squadre -->
+    <h2>Squadre e Dettagli</h2>
+    <table id="teamsTable">
+        <thead>
+            <tr>
+                <th>Nome Squadra</th>
+                <th>Punteggio</th>
+                <th>Giocatori</th>
+                <th>Penalità</th>
+                <th>Qualificato</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <!-- Form per aggiungere una partita -->
+    <div>
+        <h2>Nuova Partita</h2>
+        <input id="team1" type="text" placeholder="ID Prima Squadra">
+        <input id="team2" type="text" placeholder="ID Seconda Squadra">
+        <button onclick="createMatch()">Registra Partita</button>
+    </div>
+
+    <!-- Tabella per visualizzare le giornate -->
+    <h2>Giornate Giocate</h2>
+    <table id="matchesTable">
+        <thead>
+            <tr>
+                <th>Data</th>
+                <th>Squadra 1</th>
+                <th>Punteggio 1</th>
+                <th>Squadra 2</th>
+                <th>Punteggio 2</th>
+                <th>Vincitore</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
 
     <script src="script.js"></script>
 </body>
