@@ -86,5 +86,34 @@ function createMatch() {
         winner: winner
     };
 
-    matches.push
+    matches.push(match);
+
+    displayMatches();
+    displayCalendar();
+}
+
+// Funzione per visualizzare le giornate giocate
+function displayMatches() {
+    const matchesTable = document.getElementById('matchesTable').getElementsByTagName('tbody')[0];
+    matchesTable.innerHTML = matches.map(match => `
+        <tr>
+            <td>${match.date}</td>
+            <td>${match.team1}</td>
+            <td>${match.team1Score}</td>
+            <td>${match.team2}</td>
+            <td>${match.team2Score}</td>
+            <td>${match.winner}</td>
+        </tr>
+    `).join('');
+}
+
+// Funzione per visualizzare il calendario dei risultati
+function displayCalendar() {
+    const calendarDiv = document.getElementById('calendar');
+    calendarDiv.innerHTML = matches.map(match => `
+        <div class="day">
+            <strong>${match.date}</strong><br>
+            <span class="winner">Vincitore: ${match.winner}</span>
+        </div>
+    `).join('');
 }
