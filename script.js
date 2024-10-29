@@ -21,7 +21,7 @@ function createTeam() {
         players: teamPlayers,
         score: teamScore,
         penalties: teamPenalties,
-        qualified: teamPlayers.length >= minPlayers
+        qualified: teamPlayers.length >= minPlayers  // Qualifica con 6 o più giocatori
     };
 
     teams.push(team);
@@ -62,15 +62,15 @@ function createMatch() {
         return;
     }
 
-    // Controlla se le squadre sono qualificate (almeno 6 giocatori)
+    // Verifica se le squadre sono qualificate (almeno 6 giocatori)
     let winner;
     let score1 = team1.score - team1.penalties;
     let score2 = team2.score - team2.penalties;
 
-    if (!team1.qualified) {
+    if (team1.players.length < minPlayers) {
         winner = team2.name;  // Team 1 perde a tavolino
         score1 = 0;
-    } else if (!team2.qualified) {
+    } else if (team2.players.length < minPlayers) {
         winner = team1.name;  // Team 2 perde a tavolino
         score2 = 0;
     } else {
@@ -117,3 +117,4 @@ function displayCalendar() {
         </div>
     `).join('');
 }
+
