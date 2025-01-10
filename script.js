@@ -1,120 +1,71 @@
-let teams = [];
-let matches = [];
-const minPlayers = 6;  // Numero minimo di giocatori richiesti
+const form = document.getElementById("punteggio-form");
+const punteggiList = document.getElementById("punteggi-list");
 
-// Funzione per creare una nuova squadra
-function createTeam() {
-    const teamName = document.getElementById('teamName').value.trim();
-    const teamScore = parseInt(document.getElementById('teamScore').value) || 0;
-    const teamPenalties = parseInt(document.getElementById('teamPenalties').value) || 0;
-    const teamPlayers = document.getElementById('teamPlayers').value.split(',').map(player => player.trim());
+// Funzione per aggiungere una riga nella tabella
+function aggiungiRiga(punteggio) {
+    const row = document.createElement("tr");
+    row.innerHTML = `
+        <td>${punteggio.id}</td>
+        <td>${punteggio.squadra1}</td>
+        <td>${punteggio.punteggio1}</td>
+        <td>${punteggio.squadra2}</td>
+        <td>${punteggio.punteggio2}</td>
+        <td>${new Date(punteggio.data).toLocaleString()}</td>
+        <td><button class="delete-btn" data-id="${punteggio.id}">Elimina</button></td>
+    `;
+    punteggiList.appendChild(row);
+}
 
-    // Validazione dei campi
-    if (teamName === '' || teamPlayers.length === 0) {
-        alert("Inserisci tutti i dettagli della squadra.");
-        return;
-    }
+// Funzione per caricare i punteggi dal server
+async function caricaPunteggi() {
+    const response = await fetch("/api/punteggi");
+    const punteggi = await response.json();
+    punteggiList.innerHTML = ""; // Svuota la lista
+    punteggi.forEach(aggiungiRiga);
+}
 
-    const team = {
-        id: Date.now(),
-        name: teamName,
-        players: teamPlayers,
-        score: teamScore,
-        penalties: teamPenalties,
-        qualified: teamPlayers.length >= minPlayers  // Qualifica con 6 o più giocatori
+// Evento per inviare i dati del modulo
+form.addEventListener("submit", async (event) => {
+    event.preventDefault();
+
+    const punteggio = {
+        squadra1: form.squadra1.value,
+        punteggio1: parseInt(form.punteggio1.value),
+        squadra2: form.squadra2.value,
+        punteggio2: parseInt(form.punteggio2.value),
     };
 
-    teams.push(team);
+    // Invia i dati al server
+    const response = await fetch("/api/punteggi", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(punteggio),
+    });
 
-    // Pulizia dei campi
-    document.getElementById('teamName').value = '';
-    document.getElementById('teamScore').value = '';
-    document.getElementById('teamPenalties').value = '';
-    document.getElementById('teamPlayers').value = '';
-
-    displayTeams();
-}
-
-// Funzione per visualizzare le squadre e i dettagli
-function displayTeams() {
-    const teamsTable = document.getElementById('teamsTable').getElementsByTagName('tbody')[0];
-    teamsTable.innerHTML = teams.map(team => `
-        <tr>
-            <td>${team.name}</td>
-            <td>${team.score}</td>
-            <td>${team.players.join(', ') || "Nessun giocatore"}</td>
-            <td>${team.penalties}</td>
-            <td>${team.qualified ? 'Sì' : 'Squalificato'}</td>
-        </tr>
-    `).join('');
-}
-
-// Funzione per creare una nuova partita e registrare i risultati
-function createMatch() {
-    const team1Name = document.getElementById('team1').value.trim();
-    const team2Name = document.getElementById('team2').value.trim();
-
-    const team1 = teams.find(t => t.name === team1Name);
-    const team2 = teams.find(t => t.name === team2Name);
-
-    if (!team1 || !team2) {
-        alert('Entrambe le squadre devono esistere');
-        return;
-    }
-
-    // Verifica se le squadre sono qualificate (almeno 6 giocatori)
-    let winner;
-    let score1 = team1.score - team1.penalties;
-    let score2 = team2.score - team2.penalties;
-
-    if (team1.players.length < minPlayers) {
-        winner = team2.name;  // Team 1 perde a tavolino
-        score1 = 0;
-    } else if (team2.players.length < minPlayers) {
-        winner = team1.name;  // Team 2 perde a tavolino
-        score2 = 0;
+    if (response.ok) {
+        form.reset(); // Resetta il modulo
+        caricaPunteggi(); // Aggiorna la lista
     } else {
-        winner = score1 > score2 ? team1.name : team2.name; // Confronto punteggi
+        alert("Errore durante il salvataggio.");
     }
+});
 
-    const match = {
-        date: new Date().toLocaleDateString(),
-        team1: team1.name,
-        team1Score: score1,
-        team2: team2.name,
-        team2Score: score2,
-        winner: winner
-    };
+// Evento per eliminare un punteggio
+punteggiList.addEventListener("click", async (event) => {
+    if (event.target.classList.contains("delete-btn")) {
+        const id = event.target.getAttribute("data-id");
 
-    matches.push(match);
+        const response = await fetch(`/api/punteggi/${id}`, {
+            method: "DELETE",
+        });
 
-    displayMatches();
-    displayCalendar();
-}
+        if (response.ok) {
+            caricaPunteggi(); // Aggiorna la lista
+        } else {
+            alert("Errore durante l'eliminazione.");
+        }
+    }
+});
 
-// Funzione per visualizzare le giornate giocate
-function displayMatches() {
-    const matchesTable = document.getElementById('matchesTable').getElementsByTagName('tbody')[0];
-    matchesTable.innerHTML = matches.map(match => `
-        <tr>
-            <td>${match.date}</td>
-            <td>${match.team1}</td>
-            <td>${match.team1Score}</td>
-            <td>${match.team2}</td>
-            <td>${match.team2Score}</td>
-            <td>${match.winner}</td>
-        </tr>
-    `).join('');
-}
-
-// Funzione per visualizzare il calendario dei risultati
-function displayCalendar() {
-    const calendarDiv = document.getElementById('calendar');
-    calendarDiv.innerHTML = matches.map(match => `
-        <div class="day">
-            <strong>${match.date}</strong><br>
-            <span class="winner">Vincitore: ${match.winner}</span>
-        </div>
-    `).join('');
-}
-
+// Carica i punteggi all'avvio
+caricaPunteggi();
